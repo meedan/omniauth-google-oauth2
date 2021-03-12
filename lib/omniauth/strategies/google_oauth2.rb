@@ -6,6 +6,7 @@ module OmniAuth
       BASE_SCOPE_URL = "https://www.googleapis.com/auth/"
       BASE_SCOPES = %w[profile email openid]
       DEFAULT_SCOPE = "email,profile"
+      USER_INFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo'.freeze
 
       option :name, 'google_oauth2'
 
@@ -54,16 +55,11 @@ module OmniAuth
         hash = {}
         hash[:id_token] = access_token['id_token']
         hash[:raw_info] = raw_info unless skip_info?
-        hash[:raw_friend_info] = raw_friend_info(raw_info['sub']) unless skip_info? || options[:skip_friends]
         prune! hash
       end
 
       def raw_info
-        @raw_info ||= access_token.get('https://www.googleapis.com/plus/v1/people/me/openIdConnect').parsed
-      end
-
-      def raw_friend_info(id)
-        @raw_friend_info ||= access_token.get("https://www.googleapis.com/plus/v1/people/#{id}/people/visible").parsed
+        @raw_info ||= access_token.get(USER_INFO_URL).parsed
       end
 
       def custom_build_access_token
